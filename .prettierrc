@@ -1,0 +1,9 @@
+printWidth: 120 # default is 80
+useTabs: false
+tabWidth: 2
+semi: true
+singleQuote: true # default is false
+trailingComma: all # default is none
+bracketSpacing: true
+jsxBracketSameLine: false
+parser: typescript
