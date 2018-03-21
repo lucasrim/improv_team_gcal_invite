@@ -1,12 +1,12 @@
 {
   "name": "bb_schedule",
   "version": "1.0.0",
-  "description": "schedule for bad bear",
+  "description": "schedule for io teams",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "build": "rollup app.js --o bundle.js --f cjs",
-    "start": "node bundle.js"
+    "start": "rollup app.js --o bundle.js --f cjs && node bundle.js"
   },
   "dependencies": {
     "google-auth-library": "^1.3.2",
