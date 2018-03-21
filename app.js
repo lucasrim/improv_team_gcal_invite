@@ -1,13 +1,6 @@
-const fs = require('fs');
-const readline = require('readline');
-const puppeteer = require('puppeteer');
-const { google } = require('googleapis');
-const { OAuth2Client } = require('google-auth-library');
-const { GoogleAuth } = require('google-auth-library');
-
-const SCOPES = ['https://www.googleapis.com/auth/calendar'];
-const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
-const TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
+import fs from 'fs';
+import puppeteer from 'puppeteer';
+import { Authorize, ListEvents } from './googleAuth';
 
 async function fetchEvents() {
   const browser = await puppeteer.launch({ headless: false });
@@ -50,103 +43,7 @@ fetchEvents().then(events => {
     }
     // Authorize a client with the loaded credentials, then call the
     // Google Calendar API.
-    authorize(JSON.parse(content), listEvents);
+    Authorize(JSON.parse(content), ListEvents);
   });
   console.log(events);
 });
-
-function authorize(credentials, callback) {
-  const clientSecret = credentials.installed.client_secret;
-  const clientId = credentials.installed.client_id;
-  const redirectUrl = credentials.installed.redirect_uris[0];
-  const auth = new GoogleAuth();
-  const oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUrl);
-
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function(err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
-    }
-  });
-}
-
-function getNewToken(oauth2Client, callback) {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
-  console.log('Authorize this app by visiting this url: ', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('Enter the code from that page here: ', function(code) {
-    rl.close();
-    oauth2Client.getToken(code, function(err, token) {
-      if (err) {
-        console.log('Error while trying to retrieve access token', err);
-        return;
-      }
-      oauth2Client.credentials = token;
-      storeToken(token);
-      callback(oauth2Client);
-    });
-  });
-}
-
-function storeToken(token) {
-  try {
-    fs.mkdirSync(TOKEN_DIR);
-  } catch (err) {
-    if (err.code != 'EEXIST') {
-      throw err;
-    }
-  }
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-  console.log('Token stored to ' + TOKEN_PATH);
-}
-
-function listEvents(auth) {
-  const calendar = google.calendar('v3');
-  calendar.events.list(
-    {
-      auth: auth,
-      calendarId: 'primary',
-    },
-    (err, res) => {
-      console.log(res);
-    },
-  );
-}
-/*
-  calendar.events.list(
-    {
-      auth: auth,
-      calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 10,
-      singleEvents: true,
-      orderBy: 'startTime',
-    },
-    function(err, response) {
-      if (err) {
-        console.log('The API returned an error: ' + err);
-        return;
-      }
-      const events = response.items;
-      if (events.length == 0) {
-        console.log('No upcoming events found.');
-      } else {
-        console.log('Upcoming 10 events:');
-        for (const i = 0; i < events.length; i++) {
-          const event = events[i];
-          const start = event.start.dateTime || event.start.date;
-          console.log('%s - %s', start, event.summary);
-        }
-      }
-    },
-  );
-  */

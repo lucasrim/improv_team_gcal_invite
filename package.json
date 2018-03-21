@@ -4,6 +4,10 @@
   "description": "schedule for bad bear",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "rollup app.js --o bundle.js --f cjs",
+    "start": "node bundle.js"
+  },
   "dependencies": {
     "google-auth-library": "^1.3.2",
     "googleapis": "^27.0.0",
