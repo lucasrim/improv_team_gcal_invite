@@ -1,9 +1,9 @@
 import puppeteer from 'puppeteer';
 
-export default async function FetchEvents() {
+export default async function FetchEvents(teamName) {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
-  await page.goto('https://www.ioimprov.com/search/?q=bad-bear');
+  await page.goto(`https://www.ioimprov.com/search/?q=${teamName}`);
   await page.waitFor(2000);
 
   const results = await page.evaluate(() => {
