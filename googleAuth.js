@@ -3,12 +3,13 @@ import readline from 'readline';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleAuth } from 'google-auth-library';
+import { DateTime } from 'luxon';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
 const TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
-export function Authorize(credentials, callback) {
+export function Authorize(credentials, callback, params = null) {
   const clientSecret = credentials.installed.client_secret;
   const clientId = credentials.installed.client_id;
   const redirectUrl = credentials.installed.redirect_uris[0];
@@ -21,7 +22,7 @@ export function Authorize(credentials, callback) {
       getNewToken(oauth2Client, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
+      callback(oauth2Client, params);
     }
   });
 }
@@ -34,9 +35,33 @@ export function ListEvents(auth) {
       calendarId: 'primary',
     },
     (err, res) => {
-      console.log(res);
+      console.log(res.data.items);
     },
   );
+}
+
+export function AddEvent(auth, event) {
+  const calendar = google.calendar('v3');
+  const startTime = DateTime.fromISO(event.datetime).toISO();
+  const endTime = DateTime.fromISO(event.datetime)
+    .plus({ hours: 1 })
+    .toISO();
+
+  console.log(event);
+
+  calendar.events.insert({
+    auth,
+    calendarId: 'primary',
+    resource: {
+      start: {
+        dateTime: startTime,
+      },
+      end: {
+        dateTime: endTime,
+      },
+      summary: event.title,
+    },
+  });
 }
 
 function getNewToken(oauth2Client, callback) {

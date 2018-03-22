@@ -15,18 +15,20 @@ export default async function FetchEvents(teamName) {
     };
 
     listItems.forEach(listItem => {
+      const datetime = new Date(
+        `${getInnerText(listItem, '.dates')}/${new Date().getFullYear()} ${getInnerText(listItem, '.times')} CDT`,
+      ).toISOString();
+      console.log(new Date(datetime).toISOString());
       events.push(
         Object.assign(
           {
-            date: getInnerText(listItem, '.dates'),
-            time: getInnerText(listItem, '.times'),
-            showTitle: getInnerText(listItem, '.headliners'),
+            datetime,
+            title: getInnerText(listItem, '.headliners'),
           },
           {},
         ),
       );
     });
-
     return events;
   });
   browser.close();
