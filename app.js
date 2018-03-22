@@ -14,10 +14,6 @@ Playbook.forEach(team => {
       events.forEach(event => {
         Authorize(JSON.parse(content), AddEvent, event);
       });
-
-      console.log(events);
-      // Authorize a client with the loaded credentials, then call the
-      // Google Calendar API.
     });
   });
 });

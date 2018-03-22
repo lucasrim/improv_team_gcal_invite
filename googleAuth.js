@@ -4,6 +4,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleAuth } from 'google-auth-library';
 import { DateTime } from 'luxon';
+import config from './config';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
@@ -47,7 +48,9 @@ export function AddEvent(auth, event) {
     .plus({ hours: 1 })
     .toISO();
 
-  console.log(event);
+  const attendees = config.team.emails.map(email => {
+    return { email: email };
+  });
 
   calendar.events.insert({
     auth,
@@ -59,7 +62,10 @@ export function AddEvent(auth, event) {
       end: {
         dateTime: endTime,
       },
-      summary: event.title,
+      summary: `${config.team.name} Show: ${event.title}`,
+      location: '1501 N Kingsbury St, Chicago, IL 60642',
+      description: `${config.team.name} Show this night!`,
+      attendees,
     },
   });
 }
